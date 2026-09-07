@@ -18,6 +18,12 @@ WORKDIR /app
 ENV HOME=/app
 ENV XDG_CACHE_HOME=/app/.cache
 ENV DISPLAY=:99
+# gVisor (Cloud Run sandbox) blocks some syscalls Firefox's content sandbox
+# needs, causing mozalloc_abort. Disable Firefox's internal sandbox.
+ENV MOZ_DISABLE_CONTENT_SANDBOX=1
+ENV MOZ_DISABLE_GMP_SANDBOX=1
+ENV MOZ_DISABLE_RDD_SANDBOX=1
+ENV MOZ_FORCE_DISABLE_E10S=1
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

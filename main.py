@@ -51,7 +51,16 @@ def _refresh_clearance():
     ua = None
     key = None
     # Run headed (headless=False) behind Xvfb — pure headless crashes in Docker.
-    with Camoufox(headless=False) as browser:
+    # Disable Firefox's content sandbox: gVisor (Cloud Run) blocks the syscalls
+    # it relies on, which otherwise triggers mozalloc_abort.
+    prefs = {
+        "security.sandbox.content.level": 0,
+        "security.sandbox.gpu.level": 0,
+        "media.gmp.decoder.enabled": False,
+        "layers.acceleration.disabled": True,
+        "gfx.webrender.software": True,
+    }
+    with Camoufox(headless=False, firefox_user_prefs=prefs) as browser:
         page = browser.new_page()
         page.goto(f"{BASE}/embed", timeout=60000)
         time.sleep(18)

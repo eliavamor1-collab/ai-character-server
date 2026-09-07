@@ -50,7 +50,8 @@ def _refresh_clearance():
     cf = None
     ua = None
     key = None
-    with Camoufox(headless=True) as browser:
+    # Run headed (headless=False) behind Xvfb — pure headless crashes in Docker.
+    with Camoufox(headless=False) as browser:
         page = browser.new_page()
         page.goto(f"{BASE}/embed", timeout=60000)
         time.sleep(18)

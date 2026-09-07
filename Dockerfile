@@ -1,5 +1,5 @@
 # Lightweight Perchance proxy: camoufox (Firefox) solves Cloudflare briefly,
-# hrequests handles the rest. Aimed at Render free tier.
+# hrequests handles the rest. Runs on Google Cloud Run (set memory to 2Gi).
 FROM python:3.11-slim
 
 # System libs needed by Firefox/camoufox headless.
@@ -11,6 +11,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+# Give camoufox a predictable, writable cache location.
+ENV HOME=/app
+ENV XDG_CACHE_HOME=/app/.cache
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -19,6 +23,6 @@ RUN python -m camoufox fetch || true
 
 COPY . .
 
-ENV PORT=8000
-EXPOSE 8000
+ENV PORT=8080
+EXPOSE 8080
 CMD uvicorn main:app --host 0.0.0.0 --port ${PORT}

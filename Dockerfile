@@ -29,7 +29,8 @@ COPY . .
 
 # Start a virtual display, then the server. camoufox runs headed on :99.
 COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+# Normalize line endings (file may be committed with CRLF from Windows) + exec bit.
+RUN sed -i 's/\r$//' /app/start.sh && chmod +x /app/start.sh
 
 ENV PORT=8080
 EXPOSE 8080

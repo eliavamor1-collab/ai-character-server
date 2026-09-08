@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-# Cap file-descriptor limit to a value we're actually allowed to set.
-# (dbus/firefox try to raise it to 65536 and hang on Cloud Run gen2.)
-ulimit -n 8192 || true
-
 # Start a virtual X display so camoufox can run "headed" (fixes Docker crash).
 Xvfb :99 -screen 0 1280x1024x24 -nolisten tcp &
 sleep 2
 export DISPLAY=:99
 
-# Start a private DBus session bus so Firefox doesn't hang waiting for one.
-export $(dbus-launch)
+# Do NOT start a real dbus session. dbus-launch tries to raise the fd limit to
+# 65536, which Cloud Run's sandbox refuses, and Firefox then hangs forever.
+# Pointing the bus address at a dead socket makes Firefox skip dbus cleanly.
+export DBUS_SESSION_BUS_ADDRESS=/dev/null
 
 # Launch the API server.
 exec uvicorn main:app --host 0.0.0.0 --port "${PORT:-8080}"

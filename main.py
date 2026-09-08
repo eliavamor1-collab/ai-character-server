@@ -59,6 +59,12 @@ def _refresh_clearance():
         "media.gmp.decoder.enabled": False,
         "layers.acceleration.disabled": True,
         "gfx.webrender.software": True,
+        # Disable dbus-dependent background services so Firefox doesn't stall.
+        "toolkit.telemetry.enabled": False,
+        "datareporting.healthreport.uploadEnabled": False,
+        "browser.tabs.crashReporting.sendReport": False,
+        "media.gmp-provider.enabled": False,
+        "dom.ipc.processCount": 1,
     }
     with Camoufox(headless=False, firefox_user_prefs=prefs) as browser:
         page = browser.new_page()
